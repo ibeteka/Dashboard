@@ -1,0 +1,55 @@
+<?php
+
+namespace AppBundle\Entity\Dashboard;
+
+use Symfony\Component\Form\Form;
+use Symfony\Component\Form\FormBuilder;
+use AppBundle\Form\DashboardType;
+use XandrieBundle\Tools\Dashboard\AbstractDashboard;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Bundle\FrameworkBundle\Routing\Router;
+
+class AdminDashboard extends Dashboard {
+	
+
+	public function __construct(Router $r, FormFactoryInterface $fc, $iduser){
+		
+		parent::__construct($r, $fc, $iduser);
+		$form = $this->createForm('admin_index_dashboard', null, array('action' => '#',));
+
+		$filters = $form->get('groupby')->getConfig()->getOption('choices');
+		$filters['DEPARTEMENTID']	= 'Département';
+		$filters['TEAM'] 		 	= 'Equipe';
+	
+		$form->add('groupby', 'choice', array('choices' 	=> $filters,
+											  'required'	=> false,
+									          'placeholder' => false,
+									          'label' 		=> 'Grouper par',
+				));
+		
+		$this->setForm($form);
+	}
+	
+	
+	/**
+	 * Set a title to a dashboard
+	 * {@inheritDoc}
+	 * @see \XandrieBundle\Tools\Dashboard\AbstractDashboard::setTitle()
+	 */
+	public function setTitle($data){
+		$by = null;
+		
+		switch($data){
+			case 'PROJECTPARENTID' 		: $by = 'projet parent';break;
+			case 'PROJECTID' 			: $by = 'projet';break;
+			case 'DEPARTEMENTID' 		: $by = 'departement';break;
+			case 'USERID' 				: $by = 'utilisateur';break;
+			case 'TEAMID' 				: $by = 'équipe';break;
+			default						: $by;break;
+		}
+		
+		parent::setTitle('Répartition du temps par '. $by);
+	}
+	
+	
+}
